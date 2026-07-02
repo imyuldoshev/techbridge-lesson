@@ -120,6 +120,24 @@ def hafta_matn(dushanba: date, ogohlantirish='') -> str | None:
     return "\n".join(qatorlar)
 
 
+MAX_DARS = {'IT': 24, 'AI': 12, 'FE': 156}
+
+
+def joriy_dars_orlatish(target: date):
+    from schedule.models import Lesson
+    darslar = Lesson.objects.filter(
+        ustoz__ism="Xurshid Yuldoshev",
+        hafta_kuni=WEEKDAY[target.weekday()],
+        hafta_turi__in=['har_doim', hafta_turi(target)],
+        faol=True,
+        fan_nomi__in=list(FAN_KOD.keys()),
+    )
+    for l in darslar:
+        kod = FAN_KOD.get(l.fan_nomi)
+        if kod and l.joriy_dars < MAX_DARS.get(kod, 999):
+            Lesson.objects.filter(pk=l.pk).update(joriy_dars=l.joriy_dars + 1)
+
+
 def qabul_tugma(xabar_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[
         InlineKeyboardButton("✅ Qabul qildim", callback_data=f"qabul_{xabar_id}")
@@ -162,6 +180,7 @@ class Command(BaseCommand):
                 reply_markup=qabul_tugma(xabar.pk),
             )
             await sync_to_async(BotXabar.objects.filter(pk=xabar.pk).update)(message_id=msg.message_id)
+            await sync_to_async(joriy_dars_orlatish)(ertaga)
 
         async def haftalik_yuborish(ctx: ContextTypes.DEFAULT_TYPE):
             dushanba = date.today() + timedelta(days=1)

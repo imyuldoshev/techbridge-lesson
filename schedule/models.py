@@ -19,6 +19,24 @@ class Teacher(models.Model):
         return self.ism
 
 
+class Dastur(models.Model):
+    FAN_CHOICES = [
+        ('IT', 'IT'),
+        ('AI', "Sun'iy intellekt"),
+        ('FE', 'Frontend'),
+    ]
+    fan = models.CharField(max_length=5, choices=FAN_CHOICES)
+    dars_raqami = models.PositiveIntegerField()
+    sarlavha = models.TextField()
+
+    class Meta:
+        unique_together = ['fan', 'dars_raqami']
+        ordering = ['fan', 'dars_raqami']
+
+    def __str__(self):
+        return f"{self.fan}-{self.dars_raqami}: {self.sarlavha[:60]}"
+
+
 class Lesson(models.Model):
     HAFTA_KUNI_CHOICES = [
         ('monday', 'Dushanba'),
@@ -46,6 +64,7 @@ class Lesson(models.Model):
     mavzu = models.TextField()
     xona = models.CharField(max_length=20, blank=True, null=True)
     guruh = models.CharField(max_length=50, blank=True, null=True)
+    joriy_dars = models.PositiveIntegerField(default=1, verbose_name="Joriy dars raqami")
     faol = models.BooleanField(default=True)
     eslatma = models.TextField(blank=True, null=True)
     yaratilgan_sana = models.DateTimeField(auto_now_add=True)

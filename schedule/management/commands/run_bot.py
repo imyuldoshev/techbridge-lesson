@@ -35,6 +35,13 @@ def hafta_turi(d: date) -> str:
     return 'toq' if d.isocalendar()[1] % 2 == 1 else 'juft'
 
 
+FAN_KOD = {
+    'Frontend': 'FE',
+    'IT': 'IT',
+    "Sun'iy intellekt": 'AI',
+}
+
+
 def darslar_olish(target: date) -> dict:
     from schedule.models import Lesson
     qs = Lesson.objects.filter(
@@ -47,6 +54,16 @@ def darslar_olish(target: date) -> dict:
     for l in qs:
         grouped.setdefault(l.fan_nomi, []).append(l)
     return grouped
+
+
+def mavzu_olish(lesson) -> str:
+    from schedule.models import Dastur
+    kod = FAN_KOD.get(lesson.fan_nomi)
+    if kod and lesson.joriy_dars:
+        dastur = Dastur.objects.filter(fan=kod, dars_raqami=lesson.joriy_dars).first()
+        if dastur:
+            return f"{lesson.joriy_dars}-dars: {dastur.sarlavha}"
+    return lesson.mavzu or lesson.fan_nomi
 
 
 def kun_matn(target: date, ogohlantirish='') -> str | None:
@@ -65,8 +82,9 @@ def kun_matn(target: date, ogohlantirish='') -> str | None:
         qatorlar.append(f"{icon} <b>{fan_db}</b>")
         for l in grouped[fan_db]:
             vaqt = f"{l.boshlanish_vaqti.strftime('%H:%M')}–{l.tugash_vaqti.strftime('%H:%M')}"
+            mavzu = mavzu_olish(l)
             qatorlar.append(f"  • <b>{l.guruh or '—'}</b>")
-            qatorlar.append(f"    📖 {l.mavzu}")
+            qatorlar.append(f"    📖 {mavzu}")
             qatorlar.append(f"    ⏰ {vaqt}")
         qatorlar.append("")
     if ogohlantirish:
@@ -91,7 +109,8 @@ def hafta_matn(dushanba: date, ogohlantirish='') -> str | None:
             qatorlar.append(f"{icon} <b>{fan_db}</b>")
             for l in grouped[fan_db]:
                 vaqt = f"{l.boshlanish_vaqti.strftime('%H:%M')}–{l.tugash_vaqti.strftime('%H:%M')}"
-                qatorlar.append(f"  • <b>{l.guruh or '—'}</b>: {l.mavzu}")
+                mavzu = mavzu_olish(l)
+                qatorlar.append(f"  • <b>{l.guruh or '—'}</b>: {mavzu}")
                 qatorlar.append(f"    ⏰ {vaqt}")
         qatorlar.append("")
     if not topildi:

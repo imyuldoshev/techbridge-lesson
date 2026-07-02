@@ -156,9 +156,13 @@ class Command(BaseCommand):
             query = update.callback_query
             await query.answer("✅ Qabul qilindi!")
             xabar_id = int(query.data.split('_')[1])
-            await sync_to_async(
-                BotXabar.objects.filter(pk=xabar_id, qabul_qilindi=False).update
-            )(qabul_qilindi=True, qabul_vaqti=timezone.now())
+            xabar = await sync_to_async(BotXabar.objects.filter(pk=xabar_id).first)()
+            if xabar and not xabar.qabul_qilindi:
+                await sync_to_async(
+                    BotXabar.objects.filter(pk=xabar_id).update
+                )(qabul_qilindi=True, qabul_vaqti=timezone.now())
+                if not xabar.haftalik:
+                    await sync_to_async(joriy_dars_orlatish)(xabar.jadval_sana)
             try:
                 await query.edit_message_reply_markup(reply_markup=None)
             except Exception:
@@ -180,7 +184,6 @@ class Command(BaseCommand):
                 reply_markup=qabul_tugma(xabar.pk),
             )
             await sync_to_async(BotXabar.objects.filter(pk=xabar.pk).update)(message_id=msg.message_id)
-            await sync_to_async(joriy_dars_orlatish)(ertaga)
 
         async def haftalik_yuborish(ctx: ContextTypes.DEFAULT_TYPE):
             dushanba = date.today() + timedelta(days=1)

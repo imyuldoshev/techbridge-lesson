@@ -1,0 +1,54 @@
+{% extends 'schedule/base.html' %}
+{% block title %}Ustozlar{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Ustozlar</h2>
+    <a href="{% url 'teacher_add' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Yangi ustoz qo'shish</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input type="text" name="q" value="{{ qidiruv }}" class="form-control" placeholder="Ism bo'yicha qidirish">
+    </div>
+    <div class="col-md-4">
+        <select name="mutaxassislik" class="form-select">
+            <option value="">Barcha mutaxassisliklar</option>
+            {% for m in mutaxassisliklar %}
+                <option value="{{ m }}" {% if m == mutaxassislik %}selected{% endif %}>{{ m }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-outline-primary w-100">Qidirish</button>
+    </div>
+</form>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+            <tr><th>T/r</th><th>Ism</th><th>Telefon</th><th>Mutaxassislik</th><th>Darslar soni</th><th>Amallar</th></tr>
+            </thead>
+            <tbody>
+            {% for teacher in page_obj %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ teacher.ism }}</td>
+                    <td>{{ teacher.telefon|default:"-" }}</td>
+                    <td>{{ teacher.mutaxassislik|default:"-" }}</td>
+                    <td>{{ teacher.darslar_soni }}</td>
+                    <td>
+                        <a href="{% url 'teacher_edit' teacher.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-pen"></i></a>
+                        <a href="{% url 'teacher_delete' teacher.pk %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="text-center text-muted">Ustozlar topilmadi</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'schedule/_pagination.html' with page_obj=page_obj %}
+{% endblock %}

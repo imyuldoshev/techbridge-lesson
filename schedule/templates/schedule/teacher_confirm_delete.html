@@ -1,0 +1,15 @@
+{% extends 'schedule/base.html' %}
+{% block title %}O'chirishni tasdiqlash{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h4>Rostan ham o'chirmoqchimisiz?</h4>
+        <p>"<strong>{{ teacher.ism }}</strong>" ustozni o'chirsangiz, uning barcha darslari ham o'chib ketadi.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Ha, o'chirish</button>
+            <a href="{% url 'teacher_list' %}" class="btn btn-secondary">Yo'q</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

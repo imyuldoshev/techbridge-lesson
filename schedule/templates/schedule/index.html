@@ -1,0 +1,65 @@
+{% extends 'schedule/base.html' %}
+{% block title %}Bosh sahifa{% endblock %}
+{% block content %}
+<h2 class="mb-4">Bosh sahifa</h2>
+
+<div class="row g-3 mb-4">
+    {% if is_admin %}
+    <div class="col-md-3">
+        <div class="stat-card bg-card-1">
+            <div class="stat-number">{{ jami_ustozlar }}</div>
+            <div>Jami ustozlar</div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="col-md-{% if is_admin %}3{% else %}6{% endif %}">
+        <div class="stat-card bg-card-2">
+            <div class="stat-number">{{ jami_darslar }}</div>
+            <div>{% if is_admin %}Jami darslar{% else %}Mening darslarim{% endif %}</div>
+        </div>
+    </div>
+    <div class="col-md-{% if is_admin %}3{% else %}6{% endif %}">
+        <div class="stat-card bg-card-4">
+            <div class="stat-number">{{ faol_darslar }}</div>
+            <div>Faol darslar</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">Bugungi darslar</div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>Fan</th><th>Ustoz</th><th>Vaqt</th><th>Xona</th></tr></thead>
+                    <tbody>
+                    {% for dars in bugungi_darslar %}
+                        <tr><td>{{ dars.fan_nomi }}</td><td>{{ dars.ustoz.ism }}</td><td>{{ dars.boshlanish_vaqti|time:"H:i" }}-{{ dars.tugash_vaqti|time:"H:i" }}</td><td>{{ dars.xona|default:"-" }}</td></tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted">Bugun darslar yo'q</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">Ertangi darslar</div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>Fan</th><th>Ustoz</th><th>Vaqt</th><th>Xona</th></tr></thead>
+                    <tbody>
+                    {% for dars in ertangi_darslar %}
+                        <tr><td>{{ dars.fan_nomi }}</td><td>{{ dars.ustoz.ism }}</td><td>{{ dars.boshlanish_vaqti|time:"H:i" }}-{{ dars.tugash_vaqti|time:"H:i" }}</td><td>{{ dars.xona|default:"-" }}</td></tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted">Ertaga darslar yo'q</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

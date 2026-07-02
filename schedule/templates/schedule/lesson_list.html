@@ -1,0 +1,76 @@
+{% extends 'schedule/base.html' %}
+{% block title %}Darslar{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Darslar</h2>
+    <div>
+        <a href="{% url 'lesson_export_excel' %}" class="btn btn-success"><i class="fa-solid fa-file-excel"></i> Excel</a>
+        <a href="{% url 'lesson_add' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Yangi dars qo'shish</a>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <input type="text" name="q" value="{{ qidiruv }}" class="form-control" placeholder="Fan, mavzu, ustoz">
+    </div>
+    <div class="col-md-2">
+        <select name="hafta_kuni" class="form-select">
+            <option value="">Barcha kunlar</option>
+            {% for key, label in hafta_kuni_choices %}
+                <option value="{{ key }}" {% if key == hafta_kuni %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="ustoz" class="form-select">
+            <option value="">Barcha ustozlar</option>
+            {% for t in ustozlar %}
+                <option value="{{ t.pk }}" {% if ustoz_id == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.ism }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="faol" class="form-select">
+            <option value="">Holat (barchasi)</option>
+            <option value="1" {% if faol == "1" %}selected{% endif %}>Faol</option>
+            <option value="0" {% if faol == "0" %}selected{% endif %}>Faol emas</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100">Qidirish</button>
+    </div>
+</form>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+            <tr><th>T/r</th><th>Fan</th><th>Ustoz</th><th>Kun</th><th>Vaqt</th><th>Xona</th><th>Holat</th><th>Amallar</th></tr>
+            </thead>
+            <tbody>
+            {% for lesson in page_obj %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ lesson.fan_nomi }}</td>
+                    <td>{{ lesson.ustoz.ism }}</td>
+                    <td>{{ lesson.get_hafta_kuni_display }}</td>
+                    <td>{{ lesson.boshlanish_vaqti|time:"H:i" }}-{{ lesson.tugash_vaqti|time:"H:i" }}</td>
+                    <td>{{ lesson.xona|default:"-" }}</td>
+                    <td>
+                        {% if lesson.faol %}<span class="badge bg-success">Faol</span>{% else %}<span class="badge bg-secondary">Faol emas</span>{% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'lesson_edit' lesson.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-pen"></i></a>
+                        <a href="{% url 'lesson_delete' lesson.pk %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="8" class="text-center text-muted">Darslar topilmadi</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'schedule/_pagination.html' with page_obj=page_obj %}
+{% endblock %}

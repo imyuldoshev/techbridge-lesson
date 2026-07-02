@@ -1,0 +1,54 @@
+{% extends 'schedule/base.html' %}
+{% block title %}Haftalik jadval{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Haftalik jadval</h2>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <select name="ustoz" class="form-select" onchange="this.form.submit()">
+            <option value="">Barcha ustozlar</option>
+            {% for t in ustozlar %}
+                <option value="{{ t.pk }}" {% if ustoz_id == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.ism }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <select name="hafta_turi" class="form-select" onchange="this.form.submit()">
+            <option value="toq" {% if hafta_turi == "toq" %}selected{% endif %}>Toq hafta (1, 3, 5...)</option>
+            <option value="juft" {% if hafta_turi == "juft" %}selected{% endif %}>Juft hafta (2, 4, 6...)</option>
+        </select>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered schedule-table bg-white">
+        <thead class="table-light">
+        <tr>
+            {% for kun in jadval %}
+                <th>{{ kun.label }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            {% for kun in jadval %}
+                <td>
+                    {% for lesson in kun.darslar %}
+                        <div class="lesson-block" style="background-color: {{ lesson.rang }};">
+                            <div class="fw-bold">{{ lesson.fan_nomi }}</div>
+                            <div>{{ lesson.ustoz.ism }}</div>
+                            <div>{{ lesson.boshlanish_vaqti|time:"H:i" }}-{{ lesson.tugash_vaqti|time:"H:i" }}</div>
+                            {% if lesson.xona %}<div>Xona: {{ lesson.xona }}</div>{% endif %}
+                        </div>
+                    {% empty %}
+                        <div class="text-muted small">-</div>
+                    {% endfor %}
+                </td>
+            {% endfor %}
+        </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

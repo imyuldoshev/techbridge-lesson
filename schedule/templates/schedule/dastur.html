@@ -1,0 +1,584 @@
+{% extends 'schedule/base.html' %}
+{% block title %}Dastur{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.29.0/dist/tabler-icons.min.css">
+<style>
+.dastur-wrap {
+  --color-border-tertiary: #e5e7eb;
+  --color-border-secondary: #d1d5db;
+  --color-text-primary: #212529;
+  --color-text-secondary: #6c757d;
+  --color-background-secondary: #f8f9fa;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --color-text-success: #198754;
+}
+/* Shared */
+.prog-header { padding: 1.5rem 1.25rem 1.1rem; border-bottom: 1px solid var(--color-border-tertiary); margin-bottom: 1.5rem; }
+.prog-header h1 { font-size: 24px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 6px; }
+.prog-header p { font-size: 15px; color: var(--color-text-secondary); }
+.note-box { margin: 0 1.25rem 1.5rem; padding: 14px 16px; background: var(--color-background-secondary); border: 1px dashed var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.note-box strong { color: var(--color-text-primary); }
+.dastur-wrap .tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+.dastur-wrap .tag { font-size: 12px; font-weight: 500; padding: 3px 9px; border-radius: 6px; border: 1px solid var(--color-border-secondary); color: var(--color-text-secondary); background: var(--color-background-secondary); }
+
+/* IT dastur */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 1.25rem 1.5rem; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 10px; text-align: center; }
+.stat-num { font-size: 28px; font-weight: 700; color: var(--color-text-primary); }
+.stat-label { font-size: 13px; color: var(--color-text-secondary); margin-top: 3px; }
+.module { margin-bottom: 1.75rem; }
+.module-header { display: flex; align-items: center; gap: 10px; padding: 14px 1.25rem; border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; }
+.mod-1 .module-header { background: #DCD3FF; border: 1.5px solid #8B5CF6; }
+.mod-2 .module-header { background: #B7F5DE; border: 1.5px solid #0EA968; }
+.mod-3 .module-header { background: #FFD9BE; border: 1.5px solid #F0621A; }
+.mod-bonus .module-header { background: #FDE58B; border: 1.5px solid #D9930A; }
+.mod-badge { font-size: 13px; font-weight: 700; padding: 4px 11px; border-radius: 20px; white-space: nowrap; }
+.mod-1 .mod-badge { background: #6D28D9; color: #fff; }
+.mod-2 .mod-badge { background: #047A48; color: #fff; }
+.mod-3 .mod-badge { background: #C2410C; color: #fff; }
+.mod-bonus .mod-badge { background: #B45309; color: #fff; }
+.mod-title { font-size: 18px; font-weight: 700; }
+.mod-1 .mod-title { color: #3B1F8C; }
+.mod-2 .mod-title { color: #045A38; }
+.mod-3 .mod-title { color: #8A2E0B; }
+.mod-bonus .mod-title { color: #6B3D06; }
+.mod-weeks { font-size: 14px; font-weight: 500; color: var(--color-text-secondary); margin-left: auto; }
+.weeks-wrap { border: 1px solid var(--color-border-tertiary); border-top: none; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); overflow: hidden; }
+.week-col-header { display: grid; grid-template-columns: 64px 1fr; background: var(--color-background-secondary); border-bottom: 1px solid var(--color-border-tertiary); }
+.col-h { font-size: 13px; font-weight: 700; color: var(--color-text-secondary); padding: 9px 14px; letter-spacing: 0.03em; }
+.week-row { display: grid; grid-template-columns: 64px 1fr; border-bottom: 1px solid var(--color-border-tertiary); }
+.week-row:last-child { border-bottom: none; }
+.week-row:hover { background: var(--color-background-secondary); }
+.bonus-row { display: grid; grid-template-columns: 64px 1fr; border-bottom: 1px solid var(--color-border-tertiary); }
+.bonus-row:last-child { border-bottom: none; }
+.bonus-row:hover { background: var(--color-background-secondary); }
+.wk-num { font-size: 14px; font-weight: 700; color: var(--color-text-secondary); padding: 16px 0 12px 14px; display: flex; align-items: flex-start; }
+.lesson { padding: 14px 16px; border-left: 1px solid var(--color-border-tertiary); }
+.lessons-stack { display: flex; flex-direction: column; }
+.lessons-stack .lesson + .lesson { border-top: 1px solid var(--color-border-tertiary); }
+.lesson-num { font-size: 13px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 4px; }
+.lesson-title { font-size: 17px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 6px; }
+.lesson-desc { font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; }
+.tag-new { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 6px; border: 1px solid #0EA968; color: #047A48; background: #B7F5DE; }
+.tag-skill { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 6px; border: 1px solid #8B5CF6; color: #6D28D9; background: #DCD3FF; }
+.extra { font-size: 13px; color: var(--color-text-secondary); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-border-tertiary); line-height: 1.6; }
+.extra i { font-size: 15px; vertical-align: -1px; margin-right: 4px; }
+.homework { margin-top: 10px; padding: 10px 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); font-size: 13px; color: var(--color-text-secondary); line-height: 1.65; }
+.hw-label { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--color-text-secondary); text-transform: uppercase; margin-bottom: 6px; }
+.hw-row { margin-bottom: 4px; }
+.hw-row:last-child { margin-bottom: 0; }
+.hw-row b { color: var(--color-text-primary); font-weight: 700; }
+.mentor-note { font-size: 13px; color: var(--color-text-secondary); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--color-border-tertiary); line-height: 1.6; }
+.mentor-note b { color: var(--color-text-primary); }
+.outcome { padding: 12px 1.25rem; background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); border-top: none; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); font-size: 14px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.outcome i { font-size: 17px; color: var(--color-text-success); }
+.outcome strong { color: var(--color-text-primary); font-weight: 700; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 0.5rem 1.25rem 1.5rem; font-size: 14px; font-weight: 600; color: var(--color-text-secondary); }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--color-border-tertiary); }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 0 1.25rem 1.25rem; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-secondary); }
+
+/* AI dastur */
+.ai-week { margin: 0 1.25rem 1.5rem; border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.ai-week-header { display: flex; align-items: center; gap: 10px; padding: 14px 18px; background: #FEF3C7; border-bottom: 1.5px solid #D9930A; }
+.ai-week-num { font-size: 13px; font-weight: 700; padding: 4px 11px; border-radius: 20px; background: #B45309; color: #fff; white-space: nowrap; }
+.ai-week-title { font-size: 17px; font-weight: 700; color: #6B3D06; }
+.ai-week-sub { font-size: 13px; color: var(--color-text-secondary); margin-left: auto; }
+.ai-block { padding: 14px 18px; border-bottom: 1px solid var(--color-border-tertiary); }
+.ai-block:last-child { border-bottom: none; }
+.ai-block-label { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 6px; }
+.ai-block-1 .ai-block-label { color: #6D28D9; }
+.ai-block-2 .ai-block-label { color: #047A48; }
+.ai-block-3 .ai-block-label { color: #C2410C; }
+.ai-block-desc { font-size: 14px; color: var(--color-text-secondary); line-height: 1.65; }
+.tag-fun { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 6px; border: 1px solid #F0621A; color: #C2410C; background: #FFD9BE; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Dastur</h2>
+</div>
+
+<ul class="nav nav-tabs mb-4" id="dasturTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="it-tab-btn" data-bs-toggle="tab" data-bs-target="#it-tab" type="button" role="tab">
+      <i class="fa-solid fa-laptop-code me-1"></i> IT Dastur
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="ai-tab-btn" data-bs-toggle="tab" data-bs-target="#ai-tab" type="button" role="tab">
+      <i class="fa-solid fa-brain me-1"></i> AI Dastur
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content" id="dasturTabContent">
+
+  <!-- IT DASTUR -->
+  <div class="tab-pane fade show active" id="it-tab" role="tabpanel">
+    <div class="dastur-wrap">
+
+<div class="prog-header">
+  <h1>IT dastur</h1>
+  <p>12 hafta · 24 ta dars · har dars 2 soat · +6 oy freelancing</p>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">24</div><div class="stat-label">IT darsi</div></div>
+  <div class="stat"><div class="stat-num">2 soat</div><div class="stat-label">Har dars</div></div>
+  <div class="stat"><div class="stat-num">3</div><div class="stat-label">Modul</div></div>
+  <div class="stat"><div class="stat-num">+6 oy</div><div class="stat-label">Freelancing</div></div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="tag-new">yashil</span> — yangi qo'shilgan mavzu</div>
+  <div class="legend-item"><span class="tag-skill">binafsha</span> — ichiga singdirilgan ko'nikma</div>
+</div>
+
+<div class="note-box">
+  <strong>v3'dagi qoida:</strong> har bir darsda og'ir sozlash/kutish ishlari (hisob ochish, domen sotib olish, uzoq amaliyot) uy ishiga chiqarilgan — darsning 2 soati faqat tushunish va amaliyotga sarflanadi. Har bir uy ishi ikki qismli: <b>Amaliy</b> (ko'proq vaqt) va <b>Nazariy</b> (bola nima qilganini so'z bilan tushuntira olishi uchun — bu ko'nikma keyinchalik mijozga sotishda va intervyularda hal qiluvchi bo'ladi).
+</div>
+
+<div class="module mod-1">
+  <div class="module-header">
+    <span class="mod-badge">1-Modul</span>
+    <span class="mod-title">THINK — Fikrla</span>
+    <span class="mod-weeks">1–4-hafta · 8 dars</span>
+  </div>
+  <div class="weeks-wrap">
+    <div class="week-col-header">
+      <div class="col-h">Hafta</div>
+      <div class="col-h" style="border-left:0.5px solid var(--color-border-tertiary)">Darslar</div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">1-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-1</div>
+          <div class="lesson-title">Kursga kirish + Startap tafakkuri + Ish tizimi</div>
+          <div class="lesson-desc">Maqsad, yo'nalish · startap nima, muammo va yechim topish · MVP tushunchasi — darsning asosiy og'irligi shu yerda · Notion, Trello, Google Workspace darsda qisqacha ko'rsatiladi, to'liq sozlash uyga vazifa</div>
+          <div class="tags"><span class="tag">Notion</span><span class="tag">Trello</span><span class="tag">Google Workspace</span><span class="tag-new">Startap g'oyasi</span><span class="tag-new">MVP</span></div>
+          <div class="extra"><i class="ti ti-bulb"></i>Bola birinchi kuni nimа uchun o'qiyotganini biladi</div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> Notion'da shaxsiy dashboard yaratish · Trello'da 3 ustunli board ochish · Google Workspace hisobini to'liq sozlash</div>
+            <div class="hw-row"><b>Nazariy:</b> "MVP nima" — 3-4 gapda o'z so'zi bilan yozib kelish, va atrofdan 1 ta real MVP misolini topish</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-2</div>
+          <div class="lesson-title">Product Manager asoslari</div>
+          <div class="lesson-desc">Foydalanuvchi muammosini aniqlash · oddiy user persona yozish · qaysi feature muhim, qaysi keyinga qoladi · loyihada qaysi vosita/texnologiya kerak, qaysi keraksiz — tanlov mezonlari</div>
+          <div class="tags"><span class="tag-new">Product Management</span><span class="tag-new">User Persona</span><span class="tag-skill">Ustuvorlashtirish</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> 1 ta oddiy g'oya tanlab, unga to'liq user persona yozish (ism, yosh, muammo, ehtiyoj, kunlik holat)</div>
+            <div class="hw-row"><b>Nazariy:</b> "Agar cheksiz pul va vaqt bo'lganida ustuvorlashtirish kerak bo'larmidi?" — nega yo'q ekanini tushuntirib yozish</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">2-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-3</div>
+          <div class="lesson-title">Raqamli asboblar + Professional muloqot</div>
+          <div class="lesson-desc">Gmail, Drive, Meet, Calendar · professional ish muhiti yaratish · professional email yozish odobi (sarlavha, ton, imzo)</div>
+          <div class="tags"><span class="tag">Gmail</span><span class="tag">Google Drive</span><span class="tag">Meet</span><span class="tag-skill">Email etiquette</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> professional email imzo tayyorlash · potentsial mijozga yozilgandek 1 ta email namunasi yozish</div>
+            <div class="hw-row"><b>Nazariy:</b> yaxshi va yomon email namunasini solishtirib, farqni 3 bandda tushuntirish</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-4</div>
+          <div class="lesson-title">Internetning ichida nima bor</div>
+          <div class="lesson-desc">HTTP cycle · Client va Server · Frontend vs Backend · URL anatomiyasi · DevTools Network</div>
+          <div class="tags"><span class="tag">Chrome DevTools</span><span class="tag">HTTP</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> istalgan saytda DevTools Network orqali 3 ta so'rovni topib, skrinshot bilan hujjatlashtirish</div>
+            <div class="hw-row"><b>Nazariy:</b> "client-server" tushunchasini restoran metaforasi orqali o'z so'zi bilan tushuntirib yozish</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">3-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-5</div>
+          <div class="lesson-title">Terminal + Git asoslari + AI-native muhitga kirish</div>
+          <div class="lesson-desc">cd, mkdir, ls, rm · Git asoslari: init, status, add, commit · oddiy matn muharriridan Cursor / Claude Code'ga o'tish</div>
+          <div class="tags"><span class="tag">Terminal</span><span class="tag-new">Git asoslari</span><span class="tag-new">Cursor</span><span class="tag-new">Claude Code</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> terminal orqali 5 ta papka/fayl yaratish-o'chirish mashqi · Git repo ochib, kamida 3 marta commit qilish</div>
+            <div class="hw-row"><b>Nazariy:</b> "Git nima uchun kerak, versiyalash nima" — 3-4 gap, misol bilan</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-6</div>
+          <div class="lesson-title">Prompt Engineering + AI bilan loyihani boshqarish</div>
+          <div class="lesson-desc">Aniq, natijaga yo'naltirilgan prompt yozish · katta vazifani kichik bosqichlarga bo'lib AI'ga topshirish · error message'ni AI'ga to'g'ri tashlash</div>
+          <div class="tags"><span class="tag">ChatGPT</span><span class="tag">Claude</span><span class="tag-skill">Vazifani bo'laklash</span><span class="tag-skill">Error o'qish</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> bitta vazifaga 10 xil prompt yozib, natijalarini jadvalda solishtirish</div>
+            <div class="hw-row"><b>Nazariy:</b> "yaxshi prompt va yomon prompt farqi nimada" — o'z tajribasi asosida 3-4 gap</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">4-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-7</div>
+          <div class="lesson-title">Shaxsiy AI toolkit</div>
+          <div class="lesson-desc">30 ta prompt kutubxona yaratish · turli AI vositalarni solishtirish: Claude Code, v0.dev / Lovable / Bolt.new, ChatGPT</div>
+          <div class="tags"><span class="tag">Notion (prompt lib)</span><span class="tag">Claude Code</span><span class="tag-new">v0.dev / Lovable / Bolt.new</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> 30 ta promptdan kamida 20 tasini Notion'ga yozib qo'yish · 2 ta AI vositani sinab, solishtirish jadvalini to'ldirish</div>
+            <div class="hw-row"><b>Nazariy:</b> "qaysi vaziyatda qaysi AI vositasini tanlaysan" — 3 ta misol bilan</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-8</div>
+          <div class="lesson-title">1-modul amaliyoti — mini loyiha</div>
+          <div class="lesson-desc">O'tilgan narsalar bilan bitta real mini-vazifa · Notion dashboard + AI toolkit bilan ish rejasi tuzish</div>
+          <div class="tags"><span class="tag-new">Mini loyiha</span><span class="tag">Notion</span><span class="tag">Claude</span></div>
+          <div class="extra"><i class="ti ti-rocket"></i>Birinchi real natija — bola nimа qila olishini ko'radi</div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> mini loyihani to'liq yakunlash, Notion'da qisqa hisobot yozish</div>
+            <div class="hw-row"><b>Nazariy:</b> loyiha davomida duch kelgan 1 ta muammoni va uni qanday hal qilganini yozish</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome"><i class="ti ti-circle-check"></i><strong>Natija:</strong> Startap tafakkuri · Product Management asoslari · AI-native ish uslubi · 30 ta prompt · Mini loyiha</div>
+</div>
+
+<div class="module mod-2">
+  <div class="module-header">
+    <span class="mod-badge">2-Modul</span>
+    <span class="mod-title">BUILD — Qur</span>
+    <span class="mod-weeks">5–8-hafta · 8 dars</span>
+  </div>
+  <div class="weeks-wrap">
+    <div class="week-col-header">
+      <div class="col-h">Hafta</div>
+      <div class="col-h" style="border-left:0.5px solid var(--color-border-tertiary)">Darslar</div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">5-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-9</div>
+          <div class="lesson-title">Dizayn tafakkuri + AI bilan cheksiz dizayn o'zgartirish</div>
+          <div class="lesson-desc">HTML/CSS asoslari + amaliyot · Figma tez wireframe + AI vositalar (v0.dev, Lovable, Cursor) yordamida sahifani bir necha uslubda qayta qurish</div>
+          <div class="tags"><span class="tag">HTML5</span><span class="tag">CSS3</span><span class="tag-new">Figma</span><span class="tag-new">v0.dev / Lovable</span><span class="tag-skill">Dizaynni AI bilan iteratsiya</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> darsdagi sahifani yana 2 xil qo'shimcha uslubda AI orqali qayta qurish</div>
+            <div class="hw-row"><b>Nazariy:</b> "nega bitta HTML bir necha xil ko'rinishga ega bo'lishi mumkin" — CSS'ning rolini 3-4 gapda tushuntirish</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-10</div>
+          <div class="lesson-title">UI/UX asoslari</div>
+          <div class="lesson-desc">Foydalanuvchi oqimi (user flow) · mobil-first fikrlash · forma va xato xabarlarini to'g'ri ko'rsatish · reference saytlarni tahlil qilish</div>
+          <div class="tags"><span class="tag-new">UI/UX</span><span class="tag">User Flow</span><span class="tag-skill">Accessibility</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> 3 ta mashhur saytni tahlil qilib, UX kamchiliklarini jadvalga yozish</div>
+            <div class="hw-row"><b>Nazariy:</b> "accessibility nima uchun muhim" — 1 ta real hayotiy misol bilan</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">6-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-11</div>
+          <div class="lesson-title">CSS Flexbox + Responsive + animatsiyalar</div>
+          <div class="lesson-desc">Mobil dizayn · media queries · CSS animation · har qanday ekranda yaxshi ko'rinish</div>
+          <div class="tags"><span class="tag">Flexbox</span><span class="tag">Media Queries</span><span class="tag">CSS Animation</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> sahifani 3 xil ekran o'lchamida sinab, kamchiliklarni tuzatish · 1 ta CSS animatsiya qo'shish</div>
+            <div class="hw-row"><b>Nazariy:</b> "responsive design nega kerak" — asosli tushuntirish</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-12</div>
+          <div class="lesson-title">JavaScript kirish + debugging</div>
+          <div class="lesson-desc">Brauzer qanday JS o'qiydi · o'zgaruvchi, funksiya · Chrome DevTools bilan xato topish</div>
+          <div class="tags"><span class="tag">JavaScript</span><span class="tag">Chrome DevTools</span><span class="tag-skill">Debugging</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> atayin 5 ta xato yozib, DevTools orqali topish mashqi</div>
+            <div class="hw-row"><b>Nazariy:</b> "debugging nima, nega dasturchi xato qilishdan qo'rqmasligi kerak"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">7-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-13</div>
+          <div class="lesson-title">JS — tugma, hodisa + DOM manipulation</div>
+          <div class="lesson-desc">Event listener · DOM · interaktiv sahifa · console.log bilan debugging amaliyoti</div>
+          <div class="tags"><span class="tag">JavaScript</span><span class="tag">DOM API</span><span class="tag-skill">Debugging</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> kichik interaktiv komponent qurish, console.log bilan har bosqichni kuzatish</div>
+            <div class="hw-row"><b>Nazariy:</b> "DOM nima" — brauzer sahifani qanday "his qiladi"ni o'z so'zi bilan</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-14</div>
+          <div class="lesson-title">Telegram bot — AI bilan qurish</div>
+          <div class="lesson-desc">Bola Python yozmaydi — AI (Claude) Python kodini yozadi, bola: botning nima qilishi kerakligini aniq ta'riflaydi, BotFather orqali token oladi, botni ishga tushiradi, test qiladi</div>
+          <div class="tags"><span class="tag-new">Telegram Bot API</span><span class="tag">Python (AI yozadi)</span><span class="tag">Claude</span><span class="tag-skill">Talabni aniq ta'riflash</span></div>
+          <div class="mentor-note"><b>Mentor uchun oldindan tayyorlangan xatolar:</b> token nusxalashda bo'sh joy · polling ishga tushirilmagani · bepul hosting "sleep" muammosi · emoji/maxsus belgilar bot to'xtatishi · token'ni GitHub'ga push qilib yuborish</div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> botga yana 2 ta funksiya qo'shish · do'stlariga ulashib sinatib ko'rish</div>
+            <div class="hw-row"><b>Nazariy:</b> "bu botni mijozga qanday tushuntirasiz" — 3 gaplik sotish nutqi</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">8-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-15</div>
+          <div class="lesson-title">Portfolio dizayn yakunlash + hosting asoslari</div>
+          <div class="lesson-desc">Portfolio tuzilmasini yakunlash · Vercel, Railway, Supabase (tekin) · README.md yozish</div>
+          <div class="tags"><span class="tag">HTML/CSS/JS</span><span class="tag-new">Vercel</span><span class="tag-new">Railway</span><span class="tag-new">Supabase</span><span class="tag-skill">README yozish</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> portfolio README faylini to'liq yozish · Vercel/Railway/Supabase'da bepul hisob ochish</div>
+            <div class="hw-row"><b>Nazariy:</b> "hosting nima, nega sayt serverda joylashishi kerak" — 3-4 gap</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-16</div>
+          <div class="lesson-title">Git + GitHub + Deploy + 2-modul mini loyiha</div>
+          <div class="lesson-desc">Commit, push, pull · Portfolio ni Vercel ga deploy (bepul subdomain bilan) · mini loyiha: birinchi live sahifa</div>
+          <div class="tags"><span class="tag">Git</span><span class="tag">GitHub</span><span class="tag">Vercel</span><span class="tag-new">Mini loyiha</span></div>
+          <div class="extra"><i class="ti ti-rocket"></i>Bola birinchi marta internetda o'z sahifasini jonli ko'radi</div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> kamida 5 marta kichik o'zgarish bilan commit qilish odatini shakllantirish</div>
+            <div class="hw-row"><b>Nazariy:</b> "commit va push farqi nima" — o'z so'zi bilan</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome"><i class="ti ti-circle-check"></i><strong>Natija:</strong> Portfolio live + domen · Telegram bot · AI bilan dizayn iteratsiya · Debugging · Serverlar tushunildi</div>
+</div>
+
+<div class="module mod-3">
+  <div class="module-header">
+    <span class="mod-badge">3-Modul</span>
+    <span class="mod-title">LEAD — Boshqar</span>
+    <span class="mod-weeks">9–12-hafta · 8 dars</span>
+  </div>
+  <div class="weeks-wrap">
+    <div class="week-col-header">
+      <div class="col-h">Hafta</div>
+      <div class="col-h" style="border-left:0.5px solid var(--color-border-tertiary)">Darslar</div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">9-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-17</div>
+          <div class="lesson-title">MVP — minimal mahsulot yaratish</div>
+          <div class="lesson-desc">G'oyadan MVP ga · AI bilan backend yozish · Supabase DB ulash · Railway deploy</div>
+          <div class="tags"><span class="tag">Claude (backend)</span><span class="tag">Supabase</span><span class="tag">Railway</span><span class="tag">Vercel</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> MVP uchun yana 1 ta backend funksiyasini AI bilan yozdirib, sinab ko'rish</div>
+            <div class="hw-row"><b>Nazariy:</b> "backend nima ish qiladi, frontend'dan farqi nima" — 3-4 gap</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-18</div>
+          <div class="lesson-title">Fetch API + REST API — AI chat widget qurish</div>
+          <div class="lesson-desc">API chaqirish · ma'lumot olish · MVP frontend + backend ni ulash · AI chat widget (Claude API) va API kalitini .env orqali xavfsiz saqlash</div>
+          <div class="tags"><span class="tag">JavaScript</span><span class="tag">Fetch API</span><span class="tag">REST API</span><span class="tag-new">AI chat widget</span><span class="tag-skill">API xavfsizligi (.env)</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> AI chat widgetni MVP'ga ulash, .env faylda API key saqlashni sinab ko'rish</div>
+            <div class="hw-row"><b>Nazariy:</b> "nega API key'ni hech qachon frontendda ko'rsatib bo'lmaydi"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">10-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-19</div>
+          <div class="lesson-title">Personal branding + Open source</div>
+          <div class="lesson-desc">LinkedIn profil · GitHub README · Canva bilan vizual brend · GitHub PR/Issues, birinchi contribution</div>
+          <div class="tags"><span class="tag">LinkedIn</span><span class="tag">GitHub (PR/Issues)</span><span class="tag">Canva</span><span class="tag-skill">Inglizcha yozish</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> LinkedIn profilni to'liq to'ldirish · GitHub'da 1 ta ochiq loyihaga inglizcha issue yozish</div>
+            <div class="hw-row"><b>Nazariy:</b> "personal brand nima uchun kerak" — 1 misol bilan</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-20</div>
+          <div class="lesson-title">Mobil ilova — AI bilan qurish</div>
+          <div class="lesson-desc">AI-assisted vositalar (Expo + Claude Code yoki Bolt.new) yordamida oddiy mobil ilova qurish · telefonda sinab ko'rish</div>
+          <div class="tags"><span class="tag-new">Expo</span><span class="tag-new">Bolt.new</span><span class="tag-skill">Mobil-birinchi fikrlash</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> ilovaga yana 1 funksiya qo'shish · oila a'zosiga telefonda sinatib ko'rish</div>
+            <div class="hw-row"><b>Nazariy:</b> "web va mobil ilova farqi" — 3-4 gap</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">11-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-21</div>
+          <div class="lesson-title">Prezentatsiya san'ati + AI sayt</div>
+          <div class="lesson-desc">Professional slayd · mijozga taqdimot · Framer AI bilan kod yozmasdan sayt</div>
+          <div class="tags"><span class="tag">Google Slides</span><span class="tag">Framer AI</span><span class="tag">Durable</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> taqdimot slaydini yakunlash · keyingi dars uchun domen nomini tanlab, Namecheap'da sotib olish</div>
+            <div class="hw-row"><b>Nazariy:</b> "yaxshi va yomon taqdimot farqi" — o'z kuzatuvi asosida</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-22</div>
+          <div class="lesson-title">MVP polish + domen ulash + DNS</div>
+          <div class="lesson-desc">Loyihani yakunlash · domen ulash + DNS sozlash · kerak bo'lsa pullik VPS ga ko'chirish · DNS/domen tizimi qanday ishlashi haqida chuqurroq nazariy</div>
+          <div class="tags"><span class="tag">Namecheap</span><span class="tag">DNS</span><span class="tag">Hetzner/DO</span><span class="tag">Vercel</span></div>
+          <div class="extra"><i class="ti ti-world"></i>Bola birinchi marta o'z domenida sahifasini ko'radi</div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> domenni saytga to'liq ulab, ishlashini turli qurilmalarda tekshirish</div>
+            <div class="hw-row"><b>Nazariy:</b> "DNS nima, domen nomi qanday qilib IP manzilga aylanadi"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="week-row">
+      <div class="wk-num">12-hafta</div>
+      <div class="lessons-stack">
+        <div class="lesson">
+          <div class="lesson-num">IT-23</div>
+          <div class="lesson-title">Startap g'oyasini finalga tayyorlash</div>
+          <div class="lesson-desc">Hamma narsani birlashtirish · portfolio + MVP + Telegram bot + mobil ilova + brend · taqdimotga tayyorgarlik</div>
+          <div class="tags"><span class="tag">Notion</span><span class="tag">GitHub</span><span class="tag">Vercel (live)</span></div>
+          <div class="homework">
+            <div class="hw-label">Uy ishi</div>
+            <div class="hw-row"><b>Amaliy:</b> final taqdimotni to'liq tayyorlash — barcha loyihalar bir joyga jamlanadi</div>
+            <div class="hw-row"><b>Nazariy:</b> har bir loyiha uchun "nega shu texnologiyani tanladim" degan 1 tadan gap</div>
+          </div>
+        </div>
+        <div class="lesson">
+          <div class="lesson-num">IT-24</div>
+          <div class="lesson-title">FINAL — Portfolio + MVP + Startap himoya</div>
+          <div class="lesson-desc">Barcha 12 haftalik ish taqdimoti · live MVP · Telegram bot · mobil ilova prototipi · o'z domeni · GitHub · baholash</div>
+          <div class="tags"><span class="tag-new">Live MVP</span><span class="tag-new">O'z domeni</span><span class="tag">GitHub</span><span class="tag">Google Slides</span></div>
+          <div class="extra"><i class="ti ti-trophy"></i>Bola kursni 0 dan boshladi, real mahsulotlar to'plami bilan yakunlaydi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome"><i class="ti ti-circle-check"></i><strong>Natija:</strong> Live MVP + o'z domeni · Telegram bot · Mobil ilova · Startap taqdimoti · Personal brand</div>
+</div>
+
+<div class="divider">+6 oy — Freelancing Trek</div>
+
+<div class="module mod-bonus">
+  <div class="module-header">
+    <span class="mod-badge">Bonus</span>
+    <span class="mod-title">Freelancing Trek</span>
+    <span class="mod-weeks">F-1 dan F-5 gacha</span>
+  </div>
+  <div class="weeks-wrap">
+    <div class="week-col-header">
+      <div class="col-h">Blok</div>
+      <div class="col-h" style="border-left:0.5px solid var(--color-border-tertiary)">Mavzu va asboblar</div>
+    </div>
+    <div class="bonus-row"><div class="wk-num">F-1</div><div class="lesson"><div class="lesson-title">Upwork & Fiverr profil yaratish</div><div class="lesson-desc">AI bilan professional bio · portfolio ulash · birinchi xizmat (gig) yaratish</div><div class="tags"><span class="tag">Upwork</span><span class="tag">Fiverr</span><span class="tag">ChatGPT (bio)</span><span class="tag">Canva</span></div></div></div>
+    <div class="bonus-row"><div class="wk-num">F-2</div><div class="lesson"><div class="lesson-title">Birinchi buyurtma olish strategiyasi</div><div class="lesson-desc">Proposal yozish · narx belgilash · portfolio taqdim etish · oddiy shartnoma tuzish</div><div class="tags"><span class="tag">Claude (proposal)</span><span class="tag">Notion</span><span class="tag-skill">Shartnoma/Scope</span></div></div></div>
+    <div class="bonus-row"><div class="wk-num">F-3</div><div class="lesson"><div class="lesson-title">Mijoz bilan muloqot — ingliz tilida</div><div class="lesson-desc">Inglizcha yozishmalar · professional ton · deadline boshqarish · AI yordami</div><div class="tags"><span class="tag">ChatGPT</span><span class="tag">DeepL</span><span class="tag">Grammarly</span></div></div></div>
+    <div class="bonus-row"><div class="wk-num">F-4</div><div class="lesson"><div class="lesson-title">Real loyiha — mentor nazoratida</div><div class="lesson-desc">Haqiqiy buyurtmachi uchun loyiha · deploy · domen · feedback olish · topshirish</div><div class="tags"><span class="tag">GitHub</span><span class="tag">Vercel</span><span class="tag">Claude (kod)</span><span class="tag-skill">JS asoslarini chuqurlashtirish</span></div></div></div>
+    <div class="bonus-row"><div class="wk-num">F-5</div><div class="lesson"><div class="lesson-title">Daromad va pul boshqarish</div><div class="lesson-desc">Freelancer moliyaviy rejasi · to'lov tizimlari · soliq · code review</div><div class="tags"><span class="tag">Notion (budget)</span><span class="tag">Google Sheets</span><span class="tag">Payoneer</span><span class="tag">Wise</span></div></div></div>
+  </div>
+  <div class="outcome"><i class="ti ti-circle-check"></i><strong>Natija:</strong> Birinchi daromad · Real loyiha + domen · JS asoslari chuqurlashdi · Pul boshqarish</div>
+</div>
+
+    </div><!-- /dastur-wrap IT -->
+  </div><!-- /it-tab -->
+
+  <!-- AI DASTUR -->
+  <div class="tab-pane fade" id="ai-tab" role="tabpanel">
+    <div class="dastur-wrap">
+
+<div class="prog-header">
+  <h1>AI dastur</h1>
+  <p>12 hafta · 1 dars/hafta · IT dasturi bilan sinxron, lekin o'z shaxsiyatiga ega kurs</p>
+</div>
+
+<div class="note-box">
+  <strong>Format (har dars 3 bo'limli, taxminan 2 soat):</strong><br>
+  🟣 <b>Asos</b> (30 daq) — AI haqida mustaqil, chuqur tushuncha<br>
+  🟢 <b>IT sinxroni</b> (60 daq) — shu haftadagi IT mavzusini chuqurlashtiruvchi yoki tayyorlovchi qism<br>
+  🟠 <b>Qiziqarli AI vaqti</b> (30 daq) — ijodiy, motivatsion, "sinfda kutilmagan zavq" beruvchi AI vositalar bilan o'yin-amaliyot
+</div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-1</span><span class="ai-week-title">AI umuman nima?</span><span class="ai-week-sub">1-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">AI "fikrlaydimi" yoki faqat ehtimollik bo'yicha so'z tanlaydimi — oddiy tilda tushuntirish · AI'ga qachon ishonish, qachon tekshirish kerakligi · hallucination — real misollar bilan</div><div class="tags"><span class="tag">AI asoslari</span><span class="tag">Ishonch chegaralari</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">Bu hafta IT'da "Startap tafakkuri + MVP" o'tilyapti — "AI yordamida g'oyani tezroq sinab ko'rish": bitta g'oyani AI bilan 5 daqiqada "MVP tavsifi"ga aylantirish mashqi</div><div class="tags"><span class="tag">ChatGPT</span><span class="tag">Claude</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">Har bir bola o'z startap g'oyasiga ChatGPT bilan 3 xil sarlavha/shior yaratadi, guruh birga eng yaxshisini tanlaydi</div><div class="tags"><span class="tag-fun">Sarlavha o'yini</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-2</span><span class="ai-week-title">Qaysi AI qachon kerak?</span><span class="ai-week-sub">2-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">ChatGPT, Claude, Gemini — farqlari nimada, qaysi kuchli tomonlari bor · "yaxshi savol" va "yomon savol" farqi</div><div class="tags"><span class="tag">ChatGPT</span><span class="tag">Claude</span><span class="tag">Gemini</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da "Internet asoslari (client-server)" o'tilyapti — AI xizmatlari ham aslida server bo'lib, brauzer/ilova ular bilan gaplashishini bog'lab tushuntirish</div><div class="tags"><span class="tag">Client-server + AI</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">"AI duel": bir xil savolni 2 xil AI'ga berib, javoblarni sinfda solishtirish</div><div class="tags"><span class="tag-fun">AI duel</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-3</span><span class="ai-week-title">Prompt Engineering chuqur</span><span class="ai-week-sub">3-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">Rol berish, misol bilan ko'rsatish (few-shot), bosqichma-bosqich fikrlashga majburlash — bular nega natijani yaxshilaydi</div><div class="tags"><span class="tag-fun">Rol berish</span><span class="tag">Few-shot</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da Cursor/Claude Code bilan tanishish — "loyihaga AI'ga topshiriq qanday berish kerak" chuqur mashq qilinadi</div><div class="tags"><span class="tag">Cursor</span><span class="tag">Claude Code</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">Suno bilan o'z ismiga yoki sinfga bag'ishlangan qisqa qo'shiq yaratish</div><div class="tags"><span class="tag-fun">Suno (musiqa)</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-4</span><span class="ai-week-title">AI coding vositalari</span><span class="ai-week-sub">4-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">Cursor vs Claude Code vs v0.dev/Lovable/Bolt.new — har birining kuchli/kuchsiz tomoni, qaysi ishga qaysi mos</div><div class="tags"><span class="tag">Cursor</span><span class="tag">v0.dev</span><span class="tag">Bolt.new</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da "shaxsiy AI toolkit" yaratilyapti — solishtirilgan vositalar ro'yxati to'g'ridan-to'g'ri o'sha toolkit'ga qo'shiladi</div><div class="tags"><span class="tag">Notion (toolkit)</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">Bolt.new yoki v0.dev'da 10 daqiqada "hazil sayt" qurish — tezlikni his qilish</div><div class="tags"><span class="tag-fun">Tezkor sayt qurish</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-5</span><span class="ai-week-title">AI bilan vizual fikrlash</span><span class="ai-week-sub">5-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">Rasm/dizayn generatorlari qanday ishlaydi (matn → tasvir) · "referens tasvirni so'z bilan tasvirlash" ko'nikmasi</div><div class="tags"><span class="tag">Ideogram</span><span class="tag">Leonardo AI</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da "bitta sahifani 4-5 uslubda AI bilan qayta qurish" — "uslubni so'z bilan tasvirlash" mashqi chuqurlashtiriladi</div><div class="tags"><span class="tag">v0.dev</span><span class="tag">Lovable</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">Canva Magic Design bilan o'z startapiga logotip va banner yaratish</div><div class="tags"><span class="tag-fun">Canva (logo)</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-6</span><span class="ai-week-title">AI bilan debugging chuqur</span><span class="ai-week-sub">6-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">Xato xabarini tahlil qilish patternlari · "root cause" so'rash texnikasi — AI'ga "tuzat" demasdan, "nega bu xato chiqdi" deb so'rash farqi</div><div class="tags"><span class="tag">Root cause</span><span class="tag">Error tahlili</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da JS debugging o'tilyapti — o'sha xatolardan bir nechtasini olib, "AI bilan birga tahlil qilish" jonli namoyish</div><div class="tags"><span class="tag">JavaScript</span><span class="tag">Chrome DevTools</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">"Xato haqida hazil" — AI bilan o'z duch kelgan xatosi haqida kulgili tavsif yaratish, sinfda o'qib berish</div><div class="tags"><span class="tag-fun">Xato-comic</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-7</span><span class="ai-week-title">AI bilan avtomatlashtirish</span><span class="ai-week-sub">7-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">"Agent" tushunchasi — AI shunchaki javob beruvchi emas, vazifani bosqichma-bosqich bajaruvchi bo'lishi mumkinligi</div><div class="tags"><span class="tag">AI agent</span><span class="tag">Workflow</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da Telegram bot qurilyapti — "bot aslida oddiy agent" ekanligi, botga "avtomatik javob" logikasi qanday qo'shilishi</div><div class="tags"><span class="tag">Telegram Bot API</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">ElevenLabs bilan o'z yozgan matnini AI ovozida "o'qitib" ko'rish — botga ovozli salomlashish xabari</div><div class="tags"><span class="tag-fun">AI ovoz</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-8</span><span class="ai-week-title">AI bilan hujjatlashtirish</span><span class="ai-week-sub">8-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">Nega yaxshi hujjatlashtirish (README, commit message) muhim — AI yordamida texnik matnni tushunarli yozish</div><div class="tags"><span class="tag">README</span><span class="tag">Texnik yozuv</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da portfolio va deploy yakunlanyapti — AI yordamida README va commit'larni professional darajaga olib chiqish</div><div class="tags"><span class="tag">Git</span><span class="tag">GitHub</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">Gamma.app bilan o'z portfolio loyihasi haqida 5 daqiqada avtomatik taqdimot generatsiya qilish</div><div class="tags"><span class="tag-fun">Gamma (taqdimot)</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-9</span><span class="ai-week-title">LLM API va xavfsizlik</span><span class="ai-week-sub">9-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">Token, narxlash tushunchasi, system prompt nima · API key nega hech qachon frontendda ko'rinmasligi kerak</div><div class="tags"><span class="tag">API xavfsizligi</span><span class="tag">Token</span><span class="tag">System prompt</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da MVP + AI chat widget (Claude API) qurilyapti — .env bilan ishlash, nega shunday qilish kerakligi amaliy misollar bilan</div><div class="tags"><span class="tag">.env</span><span class="tag">Claude API</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">O'z chat widget'iga "shaxsiyat" (persona) berish — system prompt orqali botni "quvnoq", "rasmiy" yoki "qiziq" qilib sozlash</div><div class="tags"><span class="tag-fun">Bot persona</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-10</span><span class="ai-week-title">AI bilan brend yaratish</span><span class="ai-week-sub">10-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">Shaxsiy/mahsulot brendi nima uchun kerak · AI yordamida matn ohangini (ton) moslashtirish</div><div class="tags"><span class="tag">Brend ohangi</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da personal branding + mobil ilova qurilyapti — LinkedIn/portfolio matnini AI bilan yozish va tahrirlash</div><div class="tags"><span class="tag">LinkedIn</span><span class="tag">Canva</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">Canva AI bilan o'z mobil ilovasi uchun to'liq ikonka + rang palitrasi + banner to'plamini (brend-kit) yaratish</div><div class="tags"><span class="tag-fun">Brend-kit</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-11</span><span class="ai-week-title">AI bilan taqdimotga tayyorgarlik</span><span class="ai-week-sub">11-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">Yaxshi taqdimot strukturasi (muammo → yechim → natija) · AI'dan "qiyin savol beruvchi mijoz" rolini so'rab, mashq qilish</div><div class="tags"><span class="tag">Taqdimot strukturasi</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da prezentatsiya + AI sayt (Framer AI) tayyorlanyapti — slayd matnini AI bilan qisqa va ta'sirchan qilib qayta yozish</div><div class="tags"><span class="tag">Framer AI</span><span class="tag">Google Slides</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">AI'ni "qattiqqo'l mijoz" qilib sozlab, rolli o'yin: bola o'z loyihasini taqdim etadi, AI qiyin savollar beradi</div><div class="tags"><span class="tag-fun">AI mijoz rolli o'yin</span></div></div></div>
+
+<div class="ai-week"><div class="ai-week-header"><span class="ai-week-num">AI-12</span><span class="ai-week-title">Yakuniy AI audit va Hakathon</span><span class="ai-week-sub">12-hafta</span></div><div class="ai-block ai-block-1"><div class="ai-block-label">🟣 Asos</div><div class="ai-block-desc">12 hafta davomida ishlatilgan barcha AI vositalarni sanab o'tish, har birining "eng kuchli tomoni" haqida umumlashtirish</div><div class="tags"><span class="tag">Yakuniy sharh</span></div></div><div class="ai-block ai-block-2"><div class="ai-block-label">🟢 IT sinxroni</div><div class="ai-block-desc">IT'da FINAL taqdimot — har bir bola o'z loyihalarida AI qayerda ishlatilganini tahlil qilib, "AI workflow" hujjatini yakunlaydi</div><div class="tags"><span class="tag">Shaxsiy AI workflow</span></div></div><div class="ai-block ai-block-3"><div class="ai-block-label">🟠 Qiziqarli AI vaqti</div><div class="ai-block-desc">Mini "AI Hakathon": har bir bola 15 daqiqada har qanday AI vosita bilan kichik, ijodiy narsa yaratadi — sinf birga eng ijodiysiga ovoz beradi</div><div class="tags"><span class="tag-fun">AI Hakathon</span></div></div></div>
+
+    </div><!-- /dastur-wrap AI -->
+  </div><!-- /ai-tab -->
+
+</div><!-- /tab-content -->
+{% endblock %}

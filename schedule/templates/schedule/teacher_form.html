@@ -1,0 +1,19 @@
+{% extends 'schedule/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{% if teacher %}Ustozni tahrirlash{% else %}Yangi ustoz{% endif %}{% endblock %}
+{% block content %}
+<h2 class="mb-4">{% if teacher %}Ustozni tahrirlash{% else %}Yangi ustoz qo'shish{% endif %}</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Saqlash</button>
+                <a href="{% url 'teacher_list' %}" class="btn btn-secondary">Bekor qilish</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

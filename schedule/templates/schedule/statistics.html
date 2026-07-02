@@ -1,0 +1,77 @@
+{% extends 'schedule/base.html' %}
+{% block title %}Statistika{% endblock %}
+{% block content %}
+<h2 class="mb-4">Statistika</h2>
+
+<div class="row g-4 mb-4">
+    {% if is_admin %}
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Ustozlar bo'yicha darslar soni</div>
+            <div class="card-body"><canvas id="ustozlarChart"></canvas></div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="{% if is_admin %}col-md-6{% else %}col-md-12{% endif %}">
+        <div class="card">
+            <div class="card-header">Kunlar bo'yicha darslar soni</div>
+            <div class="card-body"><canvas id="kunlarChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Fanlar bo'yicha darslar soni</div>
+            <div class="card-body"><canvas id="fanlarChart"></canvas></div>
+        </div>
+    </div>
+    {% if is_admin %}
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">TOP 5 ustozlar</div>
+            <div class="card-body p-0">
+                <table class="table mb-0">
+                    <thead><tr><th>#</th><th>Ustoz</th><th>Darslar soni</th></tr></thead>
+                    <tbody>
+                    {% for t in top5_ustozlar %}
+                        <tr><td>{{ forloop.counter }}</td><td>{{ t.ism }}</td><td>{{ t.darslar_soni }}</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+{% if is_admin %}
+new Chart(document.getElementById('ustozlarChart'), {
+    type: 'bar',
+    data: {
+        labels: [{% for t in ustozlar_statistika %}"{{ t.ism|escapejs }}",{% endfor %}],
+        datasets: [{ label: "Darslar soni", data: [{% for t in ustozlar_statistika %}{{ t.darslar_soni }},{% endfor %}], backgroundColor: '#4e79a7' }]
+    }
+});
+{% endif %}
+
+new Chart(document.getElementById('kunlarChart'), {
+    type: 'bar',
+    data: {
+        labels: [{% for k in kunlar_statistika %}"{{ k.kun }}",{% endfor %}],
+        datasets: [{ label: "Darslar soni", data: [{% for k in kunlar_statistika %}{{ k.soni }},{% endfor %}], backgroundColor: '#59a14f' }]
+    }
+});
+
+new Chart(document.getElementById('fanlarChart'), {
+    type: 'pie',
+    data: {
+        labels: [{% for f in fanlar_statistika %}"{{ f.fan_nomi|escapejs }}",{% endfor %}],
+        datasets: [{ data: [{% for f in fanlar_statistika %}{{ f.soni }},{% endfor %}] }]
+    }
+});
+</script>
+{% endblock %}
